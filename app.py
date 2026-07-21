@@ -1,17 +1,5 @@
 # =============================================================
 # SmartVibe v2.3 — เฝ้าระวังความเสียหายโครงสร้างจากการสั่นสะเทือน
-#
-# 🔄 อัปเดตครั้งนี้:
-#   - ฐานข้อมูลใหม่: ssss-5979e-default-rtdb
-#   - path ใหม่: /History3F
-#   - จัดโครงสร้างให้ deploy บน GitHub + Streamlit Cloud ได้ทันที
-#   - token ฝังในโค้ดโดยตรง (repo ต้องเป็น Private)
-#
-# ฟีเจอร์ v2.2:
-#   [NEW-1] แสดง "แอมพลิจูดการแกว่งจริง" ของแต่ละชั้น
-#   [NEW-2] แสดงตัวคูณเทียบชั้น 1 (เช่น ชั้น 3 = 1.62 เท่าของชั้น 1)
-#   หมายเหตุ: แอมพลิจูดมีไว้ "ดูพฤติกรรมการแกว่ง" เท่านั้น
-#   การตัดสินสถานะยังใช้ fn (โหมด noise) / Transmissibility (โหมดไซน์)
 # =============================================================
 
 import time
@@ -28,18 +16,17 @@ st.title("SmartVibe v2.3: เฝ้าระวังโครงสร้าง
 # -------------------------------------------------------------
 # ⚙️ ตั้งค่า Firebase — แก้ที่นี่ที่เดียว
 # -------------------------------------------------------------
-FIREBASE_DOMAIN = "ssss-5979e-default-rtdb.asia-southeast1.firebasedatabase.app"
+FIREBASE_DOMAIN = "mmmmm-5b8b1-default-rtdb.asia-southeast1.firebasedatabase.app"
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
-# 🔑 Database secret ของโปรเจคใหม่
-# ⚠️ repo ที่มีบรรทัดนี้ต้องตั้งเป็น Private เท่านั้น
-AUTH_TOKEN = "PvDdE7w6xuOoKj2gsjcAyvEo5F41ZEByvjmrlpGd"
+# 🔑 Database secret
+AUTH_TOKEN = "6lZIgEBLpGiA4c8EKXx9cMhUty1jx43bsXdJCAmh"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
 QUERY = ('?orderBy="$key"&limitToLast=450' if not AUTH_TOKEN
          else f'?auth={AUTH_TOKEN}&orderBy="$key"&limitToLast=450')
 
 # -------------------------------------------------------------
-NOMINAL_FS   = 50.0
+NOMINAL_FS   = 20.0  # ปรับเป็น 20Hz ให้ตรงกับ 50ms ของฝั่ง ESP32
 SEARCH_LO    = 3.0
 SEARCH_HI    = 15.0
 HISTORY_SIZE = 7
@@ -60,7 +47,7 @@ ss.setdefault('T_hist32', [])
 for i in range(3):
     ss.setdefault(f'base_fn{i}', None)
     ss.setdefault(f'fn_hist{i}', [])
-    ss.setdefault(f'amp_hist{i}', [])      # [NEW-1] ประวัติแอมพลิจูด
+    ss.setdefault(f'amp_hist{i}', [])      
     ss.setdefault(f'rms_ch{i}', 0.0)
     ss.setdefault(f'status{i}', 'green')
     ss.setdefault(f'consec{i}', 0)
@@ -104,7 +91,6 @@ def fetch_data():
         for k, v in data.items():
             if not isinstance(v, dict):
                 continue
-            # โครงสร้างข้อมูลอาจซ้อนหนึ่งชั้น
             if 'uptime_ms' in v:
                 flat[k] = v
             else:
@@ -124,7 +110,7 @@ def fetch_data():
 
 def estimate_fs(t_ms):
     dt = np.diff(t_ms)
-    dt = dt[(dt >= 5) & (dt <= 100)]
+    dt = dt[(dt >= 5) & (dt <= 150)] # ปรับเผื่อไว้สำหรับ 50ms
     return float(1000.0 / np.median(dt)) if len(dt) >= 10 else NOMINAL_FS
 
 def resample_uniform(t_ms, sig, fs):
@@ -153,7 +139,6 @@ def peak_frequency(fw, psd):
     return float(fw[idx] + d * (fw[1] - fw[0])), sharp
 
 def band_amplitude(fw, psd, center, half=0.5):
-    """แอมพลิจูด (RMS) ของการแกว่งในย่านแคบรอบความถี่ที่สนใจ"""
     m = (fw >= center - half) & (fw <= center + half)
     return float(np.sqrt(np.sum(psd[m]))) if m.any() else 0.0
 
@@ -261,7 +246,6 @@ def main():
     else:
         active_mode = "sine"
 
-    # ---------- [NEW-1] แอมพลิจูดการแกว่งจริงของแต่ละชั้น ----------
     amps_med = [None, None, None]
     f_drive = float(np.median(valid_fns)) if valid_fns else None
     for i in range(3):
@@ -287,7 +271,6 @@ def main():
         st.caption(f"ความถี่ลำโพงที่ตรวจพบ ≈ {f_drive:.2f} Hz — "
                    "ระบบใช้อัตราส่วนแอมพลิจูดระหว่างชั้น ณ ความถี่นี้เป็นตัวชี้วัดแทน fn")
 
-    # ---------- Transmissibility ----------
     T21_med = T32_med = None
     if active_mode == "sine" and all(a is not None for a in amps_med):
         if amps_med[0] > 1e-12 and amps_med[1] > 1e-12:
@@ -351,7 +334,6 @@ def main():
                 st.warning("ไม่มีข้อมูลช่องนี้ / หาพีคไม่เจอ")
                 continue
 
-            # ---------- [NEW-1] แสดงแอมพลิจูดการแกว่งจริง ----------
             if amps_med[i] is not None:
                 ratio_txt = None
                 if i > 0 and amps_med[0]:
@@ -395,7 +377,6 @@ def main():
             else:
                 st.info("กด 🔒 ล็อก Baseline ขณะโครงสร้างสมบูรณ์และลำโพงเปิด")
 
-    # ---------- [NEW-1] กราฟแท่งเปรียบเทียบแอมพลิจูดสามชั้น ----------
     st.markdown("---")
     st.subheader("แอมพลิจูดการแกว่งแต่ละชั้น")
     if all(a is not None for a in amps_med):
@@ -421,7 +402,7 @@ def main():
 
     with st.expander("ℹ️ debug"):
         dts = np.diff(t_ms)
-        good = dts[(dts >= 5) & (dts <= 100)]
+        good = dts[(dts >= 5) & (dts <= 150)]
         st.write(f"URL: {FIREBASE_DOMAIN}/{DB_PATH}.json")
         st.write(f"จุด: {len(df)} | dt median: {np.median(good):.1f} ms | "
                  f"fs: {fs:.2f} Hz | sharpness: {[f'{s:.0f}' for s in sharps]} | "
@@ -440,5 +421,4 @@ except Exception:
     st.exception(Exception)
     raise
 
-# autorefresh อยู่ท้ายสุดเสมอ — เริ่มนับเวลาหลังวาดหน้าจอครบ
 st_autorefresh(interval=REFRESH_MS, limit=None, key="smartvibe_autorefresh")
