@@ -16,11 +16,11 @@ st.title("SmartVibe v2.3: เฝ้าระวังโครงสร้าง
 # -------------------------------------------------------------
 # ⚙️ ตั้งค่า Firebase — แก้ที่นี่ที่เดียว
 # -------------------------------------------------------------
-FIREBASE_DOMAIN = "ggggggggggggg-a4e95-default-rtdb.asia-southeast1.firebasedatabase.app"
+FIREBASE_DOMAIN = "ffffff-4d86d-default-rtdb.asia-southeast1.firebasedatabase.app"
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
 # 🔑 Database secret
-AUTH_TOKEN = "tehEtKwtGntluiO9i6eOxuvZNNfjhrkf7GJ5pRBB"
+AUTH_TOKEN = "lKPFU3F0od6iwURlOuHuPmfDIKKL09KIpLj62wzR"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
 QUERY = ('?orderBy="$key"&limitToLast=450' if not AUTH_TOKEN
          else f'?auth={AUTH_TOKEN}&orderBy="$key"&limitToLast=450')
