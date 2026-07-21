@@ -16,12 +16,11 @@ st.title("SmartVibe v2.3: เฝ้าระวังโครงสร้าง
 # -------------------------------------------------------------
 # ⚙️ ตั้งค่า Firebase — แก้ที่นี่ที่เดียว
 # -------------------------------------------------------------
-FIREBASE_DOMAIN = "mmmmm-5b8b1-default-rtdb.asia-southeast1.firebasedatabase.app"
+FIREBASE_DOMAIN = "kkkkkk-df3ad-default-rtdb.asia-southeast1.firebasedatabase.app"
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
-
 # 🔑 Database secret
-AUTH_TOKEN = "6lZIgEBLpGiA4c8EKXx9cMhUty1jx43bsXdJCAmh"
+AUTH_TOKEN = "Vo0fver0dFOy9vpQ45AdC5L6AbJBPYogAU1VUHlg"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
 QUERY = ('?orderBy="$key"&limitToLast=450' if not AUTH_TOKEN
          else f'?auth={AUTH_TOKEN}&orderBy="$key"&limitToLast=450')
@@ -111,7 +110,7 @@ def fetch_data():
 
 def estimate_fs(t_ms):
     dt = np.diff(t_ms)
-    dt = dt[(dt >= 5) & (dt <= 150)] # ปรับเผื่อไว้สำหรับ 50ms
+    dt = dt[(dt >= 5) & (dt <= 150)] 
     return float(1000.0 / np.median(dt)) if len(dt) >= 10 else NOMINAL_FS
 
 def resample_uniform(t_ms, sig, fs):
