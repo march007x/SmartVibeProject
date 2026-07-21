@@ -1,0 +1,15 @@
+# 🔒 ห้ามอัปขึ้น GitHub เด็ดขาด — มี token/รหัส WiFi อยู่ข้างใน
+.streamlit/secrets.toml
+arduino/SmartVibe_ESP32S3/arduino_secrets.h
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# ระบบปฏิบัติการ
+.DS_Store
+Thumbs.db
