@@ -19,6 +19,7 @@ st.title("SmartVibe v2.3: เฝ้าระวังโครงสร้าง
 FIREBASE_DOMAIN = "mmmmm-5b8b1-default-rtdb.asia-southeast1.firebasedatabase.app"
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
+
 # 🔑 Database secret
 AUTH_TOKEN = "6lZIgEBLpGiA4c8EKXx9cMhUty1jx43bsXdJCAmh"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
