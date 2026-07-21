@@ -20,7 +20,7 @@ FIREBASE_DOMAIN = "ggggggggggggg-a4e95-default-rtdb.asia-southeast1.firebasedata
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
 # 🔑 Database secret
-AUTH_TOKEN = "KJjhueluvwTjUFdovgXbItxMn6RI9i4jZ7Pv2uHA"
+AUTH_TOKEN = "tehEtKwtGntluiO9i6eOxuvZNNfjhrkf7GJ5pRBB"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
 QUERY = ('?orderBy="$key"&limitToLast=450' if not AUTH_TOKEN
          else f'?auth={AUTH_TOKEN}&orderBy="$key"&limitToLast=450')
