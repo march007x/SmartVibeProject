@@ -5,7 +5,7 @@
 #   - ฐานข้อมูลใหม่: smartvibeeiei-default-rtdb
 #   - path ใหม่: /History3F
 #   - จัดโครงสร้างให้ deploy บน GitHub + Streamlit Cloud ได้ทันที
-#   - token อ่านจาก st.secrets / Environment Variable (ไม่ฝังในโค้ด)
+#   - token ฝังในโค้ดโดยตรง (repo ต้องเป็น Private)
 #
 # ฟีเจอร์ v2.2:
 #   [NEW-1] แสดง "แอมพลิจูดการแกว่งจริง" ของแต่ละชั้น
@@ -14,7 +14,6 @@
 #   การตัดสินสถานะยังใช้ fn (โหมด noise) / Transmissibility (โหมดไซน์)
 # =============================================================
 
-import os
 import time
 import streamlit as st
 import pandas as pd
@@ -33,17 +32,9 @@ FIREBASE_DOMAIN = "smartvibeeiei-default-rtdb.asia-southeast1.firebasedatabase.a
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
 
-def get_token() -> str:
-    """อ่าน token ตามลำดับ: st.secrets → Environment Variable → ว่าง"""
-    try:
-        if "FB_TOKEN" in st.secrets:
-            return str(st.secrets["FB_TOKEN"]).strip()
-    except Exception:
-        pass
-    return os.environ.get("FB_TOKEN", "").strip()
-
-
-AUTH_TOKEN = get_token()
+# 🔑 Database secret ของโปรเจค smartvibeeiei
+# ⚠️ repo ที่มีบรรทัดนี้ต้องตั้งเป็น Private เท่านั้น
+AUTH_TOKEN = "ppiUiqYSYNv0uJSuoDyie3rrPqT9DAA8yUXbFs2L"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
 QUERY = ('?orderBy="$key"&limitToLast=450' if not AUTH_TOKEN
          else f'?auth={AUTH_TOKEN}&orderBy="$key"&limitToLast=450')
@@ -80,7 +71,6 @@ with st.sidebar:
     st.header("⚙️ การตั้งค่า")
     st.caption(f"📡 DB: `{FIREBASE_DOMAIN.split('.')[0]}`")
     st.caption(f"📂 path: `/{DB_PATH}`")
-    st.caption(f"🔑 token: {'✅ พบแล้ว' if AUTH_TOKEN else '⚠️ ไม่พบ (ใช้โหมดไม่ยืนยันตัวตน)'}")
     st.markdown("---")
     MODE = st.radio("โหมดการวิเคราะห์",
                     ["อัตโนมัติ (แนะนำ)", "ติดตาม fn (White Noise/Sweep)",
