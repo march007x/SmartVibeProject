@@ -2,7 +2,7 @@
 # SmartVibe v2.3 — เฝ้าระวังความเสียหายโครงสร้างจากการสั่นสะเทือน
 #
 # 🔄 อัปเดตครั้งนี้:
-#   - ฐานข้อมูลใหม่: smartvibeeiei-default-rtdb
+#   - ฐานข้อมูลใหม่: ssss-5979e-default-rtdb
 #   - path ใหม่: /History3F
 #   - จัดโครงสร้างให้ deploy บน GitHub + Streamlit Cloud ได้ทันที
 #   - token ฝังในโค้ดโดยตรง (repo ต้องเป็น Private)
@@ -28,13 +28,12 @@ st.title("SmartVibe v2.3: เฝ้าระวังโครงสร้าง
 # -------------------------------------------------------------
 # ⚙️ ตั้งค่า Firebase — แก้ที่นี่ที่เดียว
 # -------------------------------------------------------------
-FIREBASE_DOMAIN = "smartvibeeiei-default-rtdb.asia-southeast1.firebasedatabase.app"
+FIREBASE_DOMAIN = "ssss-5979e-default-rtdb.asia-southeast1.firebasedatabase.app"
 DB_PATH = "History3F"          # ต้องตรงกับ DB_PATH ในโค้ด ESP32
 
-
-# 🔑 Database secret ของโปรเจค smartvibeeiei
+# 🔑 Database secret ของโปรเจคใหม่
 # ⚠️ repo ที่มีบรรทัดนี้ต้องตั้งเป็น Private เท่านั้น
-AUTH_TOKEN = "ppiUiqYSYNv0uJSuoDyie3rrPqT9DAA8yUXbFs2L"
+AUTH_TOKEN = "PvDdE7w6xuOoKj2gsjcAyvEo5F41ZEByvjmrlpGd"
 FIREBASE_URL = f"https://{FIREBASE_DOMAIN}/{DB_PATH}.json"
 QUERY = ('?orderBy="$key"&limitToLast=450' if not AUTH_TOKEN
          else f'?auth={AUTH_TOKEN}&orderBy="$key"&limitToLast=450')
@@ -88,7 +87,6 @@ with st.sidebar:
     st.caption("💡 แนะนำ: ตั้งแอปเป็น **White Noise** แล้วใช้โหมดติดตาม fn "
                "จะแม่นและตีความง่ายที่สุด")
 
-
 # ---------------- ฟังก์ชัน ----------------
 def fetch_data():
     try:
@@ -124,12 +122,10 @@ def fetch_data():
         st.sidebar.error(f"fetch error: {e}")
         return pd.DataFrame()
 
-
 def estimate_fs(t_ms):
     dt = np.diff(t_ms)
     dt = dt[(dt >= 5) & (dt <= 100)]
     return float(1000.0 / np.median(dt)) if len(dt) >= 10 else NOMINAL_FS
-
 
 def resample_uniform(t_ms, sig, fs):
     t = (t_ms - t_ms[0]) / 1000.0
@@ -137,12 +133,10 @@ def resample_uniform(t_ms, sig, fs):
         return sig
     return np.interp(np.arange(0.0, t[-1], 1.0 / fs), t, sig)
 
-
 def compute_psd(sig, fs):
     sig = sig - np.mean(sig)
     nperseg = min(256, max(64, len(sig) // 2))
     return welch(sig, fs=fs, nperseg=nperseg, window='hann')
-
 
 def peak_frequency(fw, psd):
     mask = (fw >= SEARCH_LO) & (fw <= SEARCH_HI)
@@ -158,12 +152,10 @@ def peak_frequency(fw, psd):
     d = float(np.clip(0.5 * (y0 - y2) / denom, -0.5, 0.5)) if abs(denom) > 1e-12 else 0.0
     return float(fw[idx] + d * (fw[1] - fw[0])), sharp
 
-
 def band_amplitude(fw, psd, center, half=0.5):
     """แอมพลิจูด (RMS) ของการแกว่งในย่านแคบรอบความถี่ที่สนใจ"""
     m = (fw >= center - half) & (fw <= center + half)
     return float(np.sqrt(np.sum(psd[m]))) if m.any() else 0.0
-
 
 def push_hist(key, val, size=HISTORY_SIZE):
     h = ss[key]
@@ -173,12 +165,10 @@ def push_hist(key, val, size=HISTORY_SIZE):
     ss[key] = h
     return float(np.median(h))
 
-
 def similarity_pct(now, base):
     if base is None or now is None or base <= 0 or now <= 0:
         return None
     return float(100.0 * min(now, base) / max(now, base))
-
 
 def update_status(pct, ch):
     s, c = ss[f'status{ch}'], ss[f'consec{ch}']
@@ -206,7 +196,6 @@ def update_status(pct, ch):
     ss[f'consec{ch}'] = c
     return new_s, c
 
-
 def render_status(status, pct, cnt):
     if status == 'green':
         st.success(f"🟢 ปกติ: {pct:.1f}%")
@@ -214,7 +203,6 @@ def render_status(status, pct, cnt):
         st.warning(f"🟡 เฝ้าระวัง: {pct:.1f}%  [{cnt}/{MIN_CONSEC}]")
     else:
         st.error(f"🔴 อันตราย: {pct:.1f}%  [{cnt}/{MIN_CONSEC}]")
-
 
 # ---------------- Main ----------------
 def main():
@@ -444,7 +432,6 @@ def main():
                  f"T32: {T32_med if T32_med else '—'}")
         st.write(f"⏱️ เวลาประมวลผล: {(time.perf_counter()-t0)*1000:.0f} ms "
                  f"(ต้อง < {REFRESH_MS} ms)")
-
 
 try:
     main()
